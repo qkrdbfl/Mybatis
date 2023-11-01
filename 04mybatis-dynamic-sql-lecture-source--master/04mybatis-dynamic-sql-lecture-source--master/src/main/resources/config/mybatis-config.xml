@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <properties resource="config/connection-info.properties"/> <!--경로이름 신경써-->
+
+    <typeAliases>
+        <typeAlias type="com.ohgiraffers.common.SearchCriteria" alias="SearchCriteria"/> <!--타입을 alias(별칭)으로 사용하겠다 라는 말-->
+        <typeAlias type="com.ohgiraffers.common.MenuDTO" alias="MenuDTO"/> <!--별칭 여러개 가넝~ 그러면 매퍼에서 경로말고 별칭써두댐-->
+    </typeAliases>
+
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+
+    <mappers>
+        <package name="com.ohgiraffers.section01.xml"/> <!--경로이름 신경써-->
+        <package name="com.ohgiraffers.section02.provider"/> <!--섹션2 추가-->
+    </mappers>
+
+</configuration>

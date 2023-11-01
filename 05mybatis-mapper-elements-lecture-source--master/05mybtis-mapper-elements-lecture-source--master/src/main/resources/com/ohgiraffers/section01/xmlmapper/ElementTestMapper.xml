@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ohgiraffers.section01.xmlmapper.ElementTestMapper">
+
+    <select id="selectCacheTest" resultType="java.lang.String">
+        SELECT
+        MENU_NAME
+        FROM TBL_MENU
+    </select>
+
+    <!-- resultMap 엘리먼트의 추가 속성 : extends -->
+    <resultMap id="menuResultMap1" type="com.ohgiraffers.common.MenuDTO">
+        <id property="code" column="MENU_CODE"/>
+        <result property="name" column="MENU_NAME"/>
+        <result property="price" column="MENU_PRICE"/>
+        <result property="categoryCode" column="CATEGORY_CODE"/>
+    </resultMap>
+
+    <resultMap id="menuResultMap2" type="com.ohgiraffers.common.MenuDTO" extends="menuResultMap1">
+        <result property="orderableStatus" column="ORDERABLE_STATUS"/>
+    </resultMap>
+
+
+    <select id="selectResultMapTest" resultMap="menuResultMap2">
+        SELECT
+        MENU_CODE
+        , MENU_NAME
+        , MENU_PRICE
+        , CATEGORY_CODE
+        , ORDERABLE_STATUS
+        FROM TBL_MENU
+        WHERE ORDERABLE_STATUS = 'Y'
+    </select>
+
+    <!-- resultMap 엘리먼트의 하위 엘리먼트 : constructor -->
+    <resultMap id="menuResultMap3" type="com.ohgiraffers.common.MenuDTO">
+        <!-- id, result 엘리먼트를 사용하면 setter 메소드를 호출하기 때문에 property에 필드명을 지정했다.
+         생성자를 사용하는 경우 순서와 타입을 맞추어 기재해야 한다. -->
+        <constructor>
+            <idArg column="MENU_CODE" javaType="_int"/>
+            <arg column="MENU_NAME" javaType="string"/>
+            <arg column="MENU_PRICE" javaType="_int"/>
+            <arg column="CATEGORY_CODE" javaType="_int"/>
+            <arg column="ORDERABLE_STATUS" javaType="string"/>
+        </constructor>
+    </resultMap>
+
+    <select id="selectResultMapConstructorTest" resultMap="menuResultMap3">
+        SELECT
+        MENU_CODE
+        , MENU_NAME
+        , MENU_PRICE
+        , CATEGORY_CODE
+        , ORDERABLE_STATUS
+        FROM TBL_MENU
+        WHERE ORDERABLE_STATUS = 'Y'
+    </select>
+
+    <!-- resultMap 하위 엘리먼트 : association -->
+    <!-- association 은 중간에 작성하면 에러가 발생하므로 가장 마지막에 작성한다. -->
+
+    <!-- 1. 별도로 작성한 resultMap을 사용하는 방법 -->
+    <!--<resultMap id="menuAndCategoryResultMap" type="com.ohgiraffers.common.MenuAndCategoryDTO">
+        <id property="code" column="MENU_CODE"/>
+        <result property="name" column="MENU_NAME"/>
+        <result property="price" column="MENU_PRICE"/>
+        <result property="orderableStatus" column="ORDERABLE_STATUS"/>
+        <association property="category" resultMap="categoryResultMap"/>
+    </resultMap>
+    <resultMap id="categoryResultMap" type="com.ohgiraffers.common.CategoryDTO">
+        <id property="code" column="CATEGORY_CODE"/>
+        <result property="name" column="CATEGORY_NAME"/>
+        <result property="refCategoryCode" column="REF_CATEGORY_CODE"/>
+    </resultMap>-->
+
+    <!-- 2. association 내에 id, result를 작성하는 방법 -->
+    <resultMap id="menuAndCategoryResultMap" type="com.ohgiraffers.common.MenuAndCategoryDTO">
+        <id property="code" column="MENU_CODE"/>
+        <result property="name" column="MENU_NAME"/>
+        <result property="price" column="MENU_PRICE"/>
+        <result property="orderableStatus" column="ORDERABLE_STATUS"/>
+        <association property="category" javaType="com.ohgiraffers.common.CategoryDTO">
+            <id property="code" column="CATEGORY_CODE"/>
+            <result property="name" column="CATEGORY_NAME"/>
+            <result property="refCategoryCode" column="REF_CATEGORY_CODE"/>
+        </association>
+    </resultMap>
+
+    <select id="selectResultMapAssociationTest" resultMap="menuAndCategoryResultMap">
+        SELECT
+        A.MENU_CODE
+        , A.MENU_NAME
+        , A.MENU_PRICE
+        , B.CATEGORY_CODE
+        , A.ORDERABLE_STATUS
+        , B.CATEGORY_NAME
+        , B.REF_CATEGORY_CODE
+        FROM TBL_MENU A
+        JOIN TBL_CATEGORY B ON (A.CATEGORY_CODE = B.CATEGORY_CODE)
+        WHERE A.ORDERABLE_STATUS = 'Y'
+    </select>
+
+    <!-- resultMap 하위 엘리먼트 : collection -->
+    <!-- collection은 id, result 아래에 작성해야 오류가 발생하지 않는다. -->
+
+    <!-- 1. 따로 작성된 resultMap을 사용하는 방법 -->
+    <!--    <resultMap id="categoryAndMenuResultMap" type="com.ohgiraffers.common.CategoryAndMenuDTO">
+            <id property="code" column="CATEGORY_CODE"/>
+            <result property="name" column="CATEGORY_NAME"/>
+            <result property="refCategoryCode" column="REF_CATEGORY_CODE"/>
+            <collection property="menuList" resultMap="menuResultMap"/>
+        </resultMap>
+        <resultMap id="menuResultMap" type="com.ohgiraffers.common.MenuDTO">
+            <id property="code" column="MENU_CODE"/>
+            <result property="name" column="MENU_NAME"/>
+            <result property="price" column="MENU_PRICE"/>
+            <result property="categoryCode" column="CATEGORY_CODE"/>
+            <result property="orderableStatus" column="ORDERABLE_STATUS"/>
+        </resultMap>-->
+
+    <!-- 2. collection 내부에 id, result를 작성하는 방법 -->
+    <resultMap id="categoryAndMenuResultMap" type="com.ohgiraffers.common.CategoryAndMenuDTO">
+        <id property="code" column="CATEGORY_CODE"/>
+        <result property="name" column="CATEGORY_NAME"/>
+        <result property="refCategoryCode" column="REF_CATEGORY_CODE"/>
+        <collection property="menuList" ofType="com.ohgiraffers.common.MenuDTO">
+            <id property="code" column="MENU_CODE"/>
+            <result property="name" column="MENU_NAME"/>
+            <result property="price" column="MENU_PRICE"/>
+            <result property="categoryCode" column="CATEGORY_CODE"/>
+            <result property="orderableStatus" column="ORDERABLE_STATUS"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectResultMapCollectionTest" resultMap="categoryAndMenuResultMap">
+        SELECT
+        A.CATEGORY_CODE
+        , A.CATEGORY_NAME
+        , A.REF_CATEGORY_CODE
+        , B.MENU_CODE
+        , B.MENU_NAME
+        , B.MENU_PRICE
+        , B.CATEGORY_CODE
+        , B.ORDERABLE_STATUS
+        FROM TBL_CATEGORY A
+        LEFT JOIN TBL_MENU B ON (A.CATEGORY_CODE = B.CATEGORY_CODE)
+        ORDER BY A.CATEGORY_CODE
+    </select>
+
+    <!-- sql 엘리먼트 : 각 매핑 구문에서 공통으로 사용할 수 있는 SQL 문자열의 일부를 정의하고 재사용할 수 있다. -->
+    <sql id="columns">
+        MENU_CODE
+        , MENU_NAME
+        , MENU_PRICE
+        , CATEGORY_CODE
+        , ORDERABLE_STATUS
+    </sql>
+    <select id="selectSqlTest" resultMap="menuResultMap2">
+        SELECT
+        <include refid="columns"/>
+        FROM TBL_MENU
+        WHERE ORDERABLE_STATUS = 'Y'
+    </select>
+
+    <!--insert, update, delete 엘리먼트-->
+    <!--insert 하위 엘리먼트 selectKey-->
+    <insert id="insertNewCategory">
+        INSERT
+            INTO TBL_CATEGORY
+            (
+            CATEGORY_CODE
+            ,CATEGORY_NAME
+            ,REF_CATEGORY_CODE
+            )
+            VALUES
+            (
+            SEQ_CATEGORY_CODE.NEXTVAL
+            ,#{category.name} <!--그 안에 쓸 필드명 안에 필드를 쓸떈 . 을 찍고 접근함-->
+            ,NULL
+            )
+    </insert>
+    <insert id="insertNewMenu">
+        <selectKey keyProperty="category.code" order="BEFORE" resultType="_int">
+            SELECT
+                SEQ_CATEGORY_CODE.CURRVAL
+            FROM DUAL
+        </selectKey>
+        INSERT
+            INTO TBL_MENU
+            (
+            MENU_CODE
+            ,MENU_NAME
+        , MENU_PRICE
+        , CATEGORY_CODE
+        , ORDERABLE_STATUS
+            )
+            VALUES
+            (
+            SEQ_MENU_CODE.NEXTVAL
+            ,#{name}
+            ,#{price}
+            ,#{category.code}
+            ,#{orderableStatus}
+            )
+    </insert>
+
+
+</mapper>
